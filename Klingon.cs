@@ -64,7 +64,7 @@ namespace Klingon
 
                 if (!done)
                 {
-                    for (int n = 1; n <= 9; n++)
+                    for (int n = 0; n <= 9; n++)
                     {
                         if (number.Contains(KlingonNumbers[n]))
                         {
