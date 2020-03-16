@@ -100,7 +100,7 @@ namespace Klingon
 
                 if (!done)
                 {
-                    Console.WriteLine("\"" + number + "\" nicht erkannt");
+                    Console.WriteLine("\"" + number + "\" not recognized");
                     return false;
                 }
             }
@@ -169,7 +169,7 @@ namespace Klingon
                 }
                 else
                 {
-                    Console.WriteLine("Error tranalating '" + I[i] + "'");
+                    Console.WriteLine("Error translating '" + I[i] + "'");
                 }
             }
 

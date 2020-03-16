@@ -12,12 +12,12 @@ namespace KlingonTranslator
             while (true)
             {
                 Console.Clear();
-                Console.Write("Zahl: ");
+                Console.Write("Number: ");
                 rl = Console.ReadLine();
                 if (double.TryParse(rl, out Z) && (Math.Abs(Z) < 10000000000))
                 {
                     Console.Clear();
-                    Console.WriteLine("Zahl: " + Z);
+                    Console.WriteLine("Number: " + Z);
                     Console.WriteLine(Translate.NumberToKlingon(Z));
                 }
                 else
@@ -31,7 +31,7 @@ namespace KlingonTranslator
                         Console.WriteLine("ERROR");
                     }
                 }
-                Console.WriteLine("Drücke Enter");
+                Console.WriteLine("Press Any Button");
 
                 Console.ReadKey();
             }
