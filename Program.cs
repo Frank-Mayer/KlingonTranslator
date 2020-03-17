@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Globalization;
 using Klingon;
 
 namespace KlingonTranslator
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             string rl = "";
             double Z = 0;
@@ -14,15 +15,19 @@ namespace KlingonTranslator
                 Console.Clear();
                 Console.Write("Number: ");
                 rl = Console.ReadLine();
-                if (double.TryParse(rl, out Z) && (Math.Abs(Z) < 10000000000))
+
+                if (double.TryParse(rl.Replace('.', ','), NumberStyles.Any, new NumberFormatInfo() { NumberDecimalSeparator = "," }, out Z))
                 {
                     Console.Clear();
                     Console.WriteLine("Number: " + Z);
-                    Console.WriteLine(Translate.NumberToKlingon(Z));
+                    if (Translate.TryNumberToKlingon(Z, out var klingonNumber))
+                    {
+                        Console.WriteLine(klingonNumber);
+                    }
                 }
                 else
                 {
-                    if (Translate.KlingonToNumber(rl, out Z))
+                    if (Translate.TryKlingonNumber(rl, out Z))
                     {
                         Console.WriteLine(Z);
                     }

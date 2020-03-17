@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Klingon
 {
-    class Translate
+    public static class Translate
     {
-        private static string KlingonDecimalMark = "vI'";
+        public const string KlingonDecimalMark = "vI'";
 
-        private static string KlingonNegativeSign = "boqHa'";
+        public const string KlingonNegativeSign = "boqHa'";
 
-        private static string[] KlingonNumbers =
+        public static readonly string[] KlingonNumbers =
         {
             "pagh",
             "wa'",
@@ -24,7 +25,7 @@ namespace Klingon
             "Hut"
         };
 
-        private static string[] KlingonMultiply =
+        public static readonly string[] KlingonMultiply =
         {
             "",
             "maH",
@@ -36,7 +37,21 @@ namespace Klingon
             "Saghan"
         };
 
-        public static bool KlingonToNumber(string text, out double z)
+        private static int GetKlingonIndex(string s)
+        {
+            for (int i = 0; i < KlingonNumbers.Length; i++)
+            {
+                string n = KlingonNumbers[i];
+                if (s.Contains(n))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        public static bool TryKlingonNumber(string text, out double z)
         {
             bool r = true;
             z = 0;
@@ -50,55 +65,46 @@ namespace Klingon
             string[] numbers = text.Split(' ');
             foreach (string number in numbers)
             {
-                bool done = false;
                 if (number == KlingonNegativeSign)
                 {
-                    done = true;
+                    continue;
                 }
 
                 if (number == KlingonDecimalMark)
                 {
                     dec = true;
-                    done = true;
+                    continue;
                 }
 
-                if (!done)
+                int index = GetKlingonIndex(number);
+                if (index > -1)
                 {
-                    for (int n = 0; n <= 9; n++)
+                    if (number == KlingonNumbers[index] || dec)
                     {
-                        if (number.Contains(KlingonNumbers[n]))
+                        if (dec)
                         {
-                            if (number == KlingonNumbers[n] || dec)
+                            z += (index * Math.Pow(10, decCounter));
+                            decCounter--;
+                        }
+                        else
+                        {
+                            z += index;
+                        }
+                        break;
+                    }
+                    else
+                    {
+                        for (int m = 1; m < KlingonMultiply.Length; m++)
+                        {
+                            if (number.Contains(KlingonMultiply[m]))
                             {
-                                if (dec)
-                                {
-                                    z += (n * Math.Pow(10, decCounter));
-                                    decCounter--;
-                                }
-                                else
-                                {
-                                    z += n;
-                                }
-                                done = true;
+                                z += (index * (Math.Pow(10, m)));
                                 break;
-                            }
-                            else
-                            {
-                                for (int m = 1; m < KlingonMultiply.Length; m++)
-                                {
-                                    if (number.Contains(KlingonMultiply[m]))
-                                    {
-                                        z += (n * (Math.Pow(10, m)));
-                                        done = true;
-                                        break;
-                                    }
-                                }
                             }
                         }
                     }
                 }
-
-                if (!done)
+                else
                 {
                     Console.WriteLine("\"" + number + "\" not recognized");
                     return false;
@@ -112,44 +118,40 @@ namespace Klingon
             return r;
         }
 
-        public static string NumberToKlingon(double number)
+        public static bool TryNumberToKlingon(double number, out string klingonNumber)
         {
-            if (number == 0)
+            if (Math.Abs(number) >= 10000000000)
             {
-                return KlingonNumbers[0];
+                klingonNumber = "";
+                return false;
             }
 
-            StringBuilder z = new StringBuilder();
+            if (number == 0)
+            {
+                klingonNumber = KlingonNumbers[0];
+                return true;
+            }
+
+            StringBuilder klingonNumberBuilder = new StringBuilder();
 
             if (number < 0)
             {
-                z.Append(KlingonNegativeSign + " ");
+                klingonNumberBuilder.Append(KlingonNegativeSign + " ");
                 number = Math.Abs(number);
             }
 
             bool isDecimal = false;
             string tempStr = number.ToString();
-            List<ushort> dec = new List<ushort>();
+            List<ushort> decimalPlaces = new List<ushort>();
             if (tempStr.Contains(","))
             {
-                string[] tempStrArr = tempStr.Split(',');
-                tempStr = tempStrArr[0];
-                foreach (char decimalNumber in tempStrArr[1])
-                {
-                    dec.Add(ushort.Parse(decimalNumber.ToString()));
-                }
-                isDecimal = true;
+                getDecimalPlaces(',', decimalPlaces, ref tempStr);
             }
             else if (tempStr.Contains("."))
             {
-                string[] tempStrArr = tempStr.Split('.');
-                tempStr = tempStrArr[0];
-                foreach (char decimalNumber in tempStrArr[1])
-                {
-                    dec.Add(ushort.Parse(decimalNumber.ToString()));
-                }
-                isDecimal = true;
+                getDecimalPlaces('.', decimalPlaces, ref tempStr);
             }
+            isDecimal = decimalPlaces.Count > 0;
 
             char[] I = tempStr.ToCharArray();
 
@@ -160,30 +162,55 @@ namespace Klingon
                 {
                     if (nowNumber != 0)
                     {
-                        z.Append(KlingonNumbers[nowNumber]);
+                        if (klingonNumberBuilder.Length > 0)
+                        {
+                            klingonNumberBuilder.Append(" ");
+                        }
+
+                        klingonNumberBuilder.Append(KlingonNumbers[nowNumber]);
 
                         int j = (I.Length - 1) - i;
-                        z.Append(KlingonMultiply[j]);
-                        z.Append(" ");
+                        klingonNumberBuilder.Append(KlingonMultiply[j]);
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Error translating '" + I[i] + "'");
+                    klingonNumber = "";
+                    return false;
                 }
             }
 
             if (isDecimal)
             {
-                z.Append(KlingonDecimalMark);
-                foreach (ushort i in dec)
+                klingonNumberBuilder.Append(" ");
+                klingonNumberBuilder.Append(KlingonDecimalMark);
+                foreach (ushort i in decimalPlaces)
                 {
-                    z.Append(" ");
-                    z.Append(KlingonNumbers[i]);
+                    klingonNumberBuilder.Append(" ");
+                    klingonNumberBuilder.Append(KlingonNumbers[i]);
                 }
             }
 
-            return z.ToString();
+            klingonNumber = klingonNumberBuilder.ToString();
+            return true;
+        }
+
+        private static void getDecimalPlaces(char splitter, List<ushort> decimalPlaces, ref string text)
+        {
+            if (text.ToCharArray().Where(x => x == splitter).Count() > 1)
+            {
+                throw new ArgumentException("Invalid Number");
+            }
+
+            string[] tempStrArr = text.Split(splitter);
+            if (tempStrArr.Length >= 2)
+            {
+                text = tempStrArr[0];
+                foreach (char decimalNumber in tempStrArr[1])
+                {
+                    decimalPlaces.Add(ushort.Parse(decimalNumber.ToString()));
+                }
+            }
         }
     }
 }
