@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.1022
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KlingonTranslator", "KlingonTranslator.csproj", "{86477BC7-8178-41C3-8BB3-A8D17B5DDC72}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KlingonTranslator", "KlingonTranslator\KlingonTranslator.csproj", "{86477BC7-8178-41C3-8BB3-A8D17B5DDC72}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KlingonTranslator.Test", "KlingonTranslator.Test\KlingonTranslator.Test.csproj", "{A7ED284F-609F-4932-9E1E-00B14B89ABAB}"
 EndProject
